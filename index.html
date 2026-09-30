@@ -394,7 +394,7 @@ function buildBg(){
   STEP = W < 600 ? 8 : 10; const rnd = seeded(11); cells = [];
   for (let y = 0; y < H; y += STEP) for (let x = 0; x < W; x += STEP) {
     const t = y / H, wave = 0.55 + 0.45*Math.sin(x/70)*Math.cos(x/160 + 1.3);
-    if (rnd() < 0.04 + Math.pow(t, 2.4)*0.34*wave)
+    if (rnd() < 0.012 + Math.pow(t, 2.6)*0.12*wave)
       cells.push({ x, y, ox: 0, oy: 0, a: 0.08 + 0.30*Math.pow(t,1.4), col: COLS[Math.floor((x/W + rnd()*0.35)*4) % 4], ph: rnd()*6.283 });
   }
 }
