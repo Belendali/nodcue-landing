@@ -25,6 +25,10 @@ a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
 img{display:block}
 
+/* ---------- page background: one fixed, interactive pixel field ---------- */
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+header,section,footer{position:relative;z-index:1}
+
 /* ---------- nav ---------- */
 nav{position:fixed;top:0;padding-top:env(safe-area-inset-top,0px);left:0;right:0;z-index:50;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
 nav.scrolled{background:rgba(0,0,0,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-color:var(--line)}
@@ -59,7 +63,6 @@ h1 .dim{color:var(--t3)}
 
 .stage{position:relative;height:640px}
 .field{position:absolute;left:0;right:0;bottom:0;height:320px;z-index:0;pointer-events:none}
-.hero .field{position:relative;display:block;width:100%;height:300px;margin-top:-170px}
 .hero-grid{grid-template-columns:1.1fr .9fr}
 
 /* phone */
@@ -106,7 +109,7 @@ h1 .dim{color:var(--t3)}
 .ptabs{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:2px;padding:4px;border-radius:999px;background:rgba(241,238,232,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:11px;font-weight:500;color:#56524C;z-index:3}
 .ptabs span{padding:7px 12px;border-radius:999px}
 .ptabs .on{background:#1A1817;color:#F1EEE8}
-.scr .field{height:190px}
+.scr .field{height:190px;position:absolute;left:0;right:0;bottom:0}
 
 @keyframes float{50%{translate:0 -10px}}
 
@@ -179,7 +182,7 @@ h2 .dim{color:var(--t3)}
 .final{padding:160px 0 0;overflow:hidden;text-align:center}
 .final h2{font-size:clamp(46px,7vw,92px);max-width:none}
 .final .cta{justify-content:center}
-.final .field{height:300px;position:relative;display:block;width:100%;margin-top:80px}
+.final{padding-bottom:200px}
 
 footer{border-top:1px solid var(--line);padding:32px 0 44px;font-size:13px;color:var(--t3)}
 footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
@@ -209,6 +212,8 @@ footer .fl a:hover{color:var(--t1)}
 </style>
 </head>
 <body>
+
+<canvas id="bg" aria-hidden="true"></canvas>
 
 <nav id="nav"><div class="wrap">
   <a class="brand" href="#"><img src="nodcue-logo.png" alt="">NodCue</a>
@@ -252,7 +257,6 @@ footer .fl a:hover{color:var(--t1)}
       </div></div>
     </div>
   </div>
-  <canvas class="field" data-density=".8"></canvas>
 </header>
 
 <!-- PROBLEM -->
@@ -347,7 +351,6 @@ footer .fl a:hover{color:var(--t1)}
       <a class="btn w" href="#"><svg viewBox="0 0 17 20" fill="currentColor"><path d="M14.1 10.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9C3.6 4.8 2 5.8 1.1 7.4c-1.8 3.2-.5 7.9 1.3 10.5.9 1.3 1.9 2.7 3.2 2.6 1.3 0 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.7-1-2.7-4.3zM11.6 3c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3.1-1.5z"/></svg>Download on the App Store</a>
     </div>
   </div>
-  <canvas class="field" data-density="1"></canvas>
 </section>
 
 <footer><div class="wrap">
@@ -366,67 +369,54 @@ const nav = document.getElementById('nav');
 const onScroll = () => nav.classList.toggle('scrolled', scrollY > 20);
 addEventListener('scroll', onScroll, {passive:true}); onScroll();
 
-// Interactive dot-matrix fields (sage / lavender / sand / grey), rising from the bottom.
-// Pointer near a field lights up the pixels under it; a click / tap sends a ripple.
-const COLS = ['#9DB39A','#A9A3C7','#C9B79A','#8E8980'], MINT = '#80D6A8';
+const COLS = ['#9DB39A','#A9A3C7','#C9B79A','#8E8980'];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const pointer = { x: -1e4, y: -1e4, on: false };
-const ripples = [];
+const seeded = s => () => (s = (s*16807) % 2147483647) / 2147483647;
 
-class Field {
-  constructor(cv){ this.cv = cv; this.c = cv.getContext('2d'); this.visible = true; this.build(); }
-  build(){
-    const cv = this.cv, d = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
-    this.w = w; this.h = h; if (!w || !h) { this.cells = []; return; }
-    cv.width = w*d; cv.height = h*d; this.c.setTransform(d,0,0,d,0,0);
-    const step = this.step = w < 500 ? 7 : 9, dens = +cv.dataset.density || 1;
-    let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
-    this.cells = [];
-    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
-      const t = y / h, wave = 0.5 + 0.5*Math.sin(x/60)*Math.cos(x/143);
-      const on = rnd() < Math.pow(t,1.7)*(0.5+0.5*wave)*dens;
-      this.cells.push({ x, y, on, a: 0.18 + 0.55*t, col: COLS[Math.floor((x/w + rnd()*0.3)*COLS.length) % COLS.length], ph: rnd()*6.283 });
-    }
+// Small static pixel strip inside the phone mock
+document.querySelectorAll('.scr canvas.field').forEach(cv => {
+  const d = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
+  cv.width = w*d; cv.height = h*d; const c = cv.getContext('2d'); c.scale(d,d);
+  const rnd = seeded(7), step = 7;
+  for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+    const t = y/h; if (rnd() < Math.pow(t,1.7)*0.9) { c.globalAlpha = 0.18 + 0.5*t; c.fillStyle = COLS[Math.floor(rnd()*4)]; c.fillRect(x, y, step-2, step-2); }
   }
-  draw(now){
-    const { c, w, h, step } = this; if (!w) return;
-    const r = this.cv.getBoundingClientRect();
-    const px = pointer.x - r.left, py = pointer.y - r.top, R = 130;
-    const near = pointer.on && px > -R && px < w + R && py > -R && py < h + R;
-    c.clearRect(0, 0, w, h);
-    for (const cell of this.cells) {
-      let a = cell.on ? cell.a * (reduced ? 1 : 0.8 + 0.2*Math.sin(now/1100 + cell.ph)) : 0, k = 0;
-      if (near) { const dx = cell.x - px, dy = cell.y - py, dd = Math.sqrt(dx*dx + dy*dy); if (dd < R) k = Math.pow(1 - dd/R, 2); }
-      for (const rp of ripples) {
-        if (rp.cv !== this.cv) continue;
-        const age = (now - rp.t) / 1400, rad = age * 520, dd = Math.hypot(cell.x - rp.x, cell.y - rp.y), band = Math.abs(dd - rad);
-        if (band < 36) k = Math.max(k, (1 - band/36) * (1 - age));
-      }
-      if (k > 0) a = Math.max(a, k * (cell.on ? 1 : 0.7));
-      if (a < 0.02) continue;
-      const g = k * 2;
-      c.globalAlpha = a; c.fillStyle = k > 0.45 ? MINT : cell.col;
-      c.fillRect(cell.x - g/2, cell.y - g/2, step - 2 + g, step - 2 + g);
-    }
+});
+
+// Page background: sparse pixels everywhere, denser toward the bottom of the screen.
+// Pixels near the pointer drift gently away from it and brighten a little.
+const bg = document.getElementById('bg'), bc = bg.getContext('2d');
+const pointer = { x: -1e4, y: -1e4 };
+let cells = [], W = 0, H = 0, STEP = 10;
+function buildBg(){
+  const d = devicePixelRatio || 1; W = innerWidth; H = innerHeight;
+  bg.width = W*d; bg.height = H*d; bc.setTransform(d,0,0,d,0,0);
+  STEP = W < 600 ? 8 : 10; const rnd = seeded(11); cells = [];
+  for (let y = 0; y < H; y += STEP) for (let x = 0; x < W; x += STEP) {
+    const t = y / H, wave = 0.55 + 0.45*Math.sin(x/70)*Math.cos(x/160 + 1.3);
+    if (rnd() < 0.04 + Math.pow(t, 2.4)*0.34*wave)
+      cells.push({ x, y, ox: 0, oy: 0, a: 0.08 + 0.30*Math.pow(t,1.4), col: COLS[Math.floor((x/W + rnd()*0.35)*4) % 4], ph: rnd()*6.283 });
   }
 }
-
-const fields = [...document.querySelectorAll('canvas.field')].map(cv => new Field(cv));
-const vis = new IntersectionObserver(es => es.forEach(e => { const f = fields.find(f => f.cv === e.target); if (f) f.visible = e.isIntersecting; }));
-fields.forEach(f => vis.observe(f.cv));
-addEventListener('pointermove', e => { pointer.x = e.clientX; pointer.y = e.clientY; pointer.on = true; }, { passive: true });
-document.addEventListener('pointerleave', () => { pointer.on = false; });
-addEventListener('pointerdown', e => {
-  for (const f of fields) { const r = f.cv.getBoundingClientRect();
-    if (e.clientY > r.top - 60 && e.clientY < r.bottom && e.clientX > r.left && e.clientX < r.right)
-      ripples.push({ cv: f.cv, x: e.clientX - r.left, y: e.clientY - r.top, t: performance.now() }); }
-});
-(function loop(now){
-  for (let i = ripples.length - 1; i >= 0; i--) if (now - ripples[i].t > 1400) ripples.splice(i, 1);
-  fields.forEach(f => f.visible && f.draw(now));
-  requestAnimationFrame(loop);
-})(performance.now());
-let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => fields.forEach(f => f.build()), 150); });
+function drawBg(now){
+  bc.clearRect(0, 0, W, H);
+  const R = 110, size = STEP - 3;
+  for (const p of cells) {
+    let tx = 0, ty = 0, k = 0;
+    const dx = p.x - pointer.x, dy = p.y - pointer.y, dd = Math.hypot(dx, dy);
+    if (dd < R && dd > 0.1) { k = 1 - dd/R; const push = k*k*9; tx = dx/dd*push; ty = dy/dd*push; }
+    p.ox += (tx - p.ox)*0.12; p.oy += (ty - p.oy)*0.12;           // ease toward target: a slight, soft drift
+    const tw = reduced ? 1 : 0.85 + 0.15*Math.sin(now/1300 + p.ph);
+    bc.globalAlpha = Math.min(1, p.a*tw + k*0.35);
+    bc.fillStyle = p.col;
+    bc.fillRect(p.x + p.ox, p.y + p.oy, size, size);
+  }
+}
+addEventListener('pointermove', e => { pointer.x = e.clientX; pointer.y = e.clientY; }, { passive: true });
+document.addEventListener('pointerleave', () => { pointer.x = pointer.y = -1e4; });
+buildBg();
+(function loop(now){ drawBg(now); requestAnimationFrame(loop); })(performance.now());
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(buildBg, 150); });
 
 // live countdown in the hero ticket
 const cd = document.getElementById('cd'); let left = 298;
