@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NodCue</title>
+<meta name="description" content="NodCue sends Claude Code and Codex approval requests from your Mac to your iPhone and Apple Watch. Allow or deny in one tap.">
+<link rel="icon" href="nodcue-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#000; --card:#141416; --card2:#1C1C1F; --line:#232326;
+  --t1:#FFFFFF; --t2:#8E8E93; --t3:#48484A;
+  --mint:#80D6A8; --lav:#A9A3C7;
+  --glow:linear-gradient(90deg,#7BAA91,#B5A1D0 50%,#E1D6B2);
+  --sans:'Inter',-apple-system,system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+  --max:1120px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t1);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+img{display:block}
+
+/* ---------- nav ---------- */
+nav{position:fixed;top:0;padding-top:env(safe-area-inset-top,0px);left:0;right:0;z-index:50;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+nav.scrolled{background:rgba(0,0,0,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-color:var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;letter-spacing:-.02em}
+.brand img{width:30px;height:30px}
+.links{display:flex;align-items:center;gap:30px;font-size:14px;color:var(--t2)}
+.links a:hover{color:var(--t1)}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:52px;padding:0 26px;border-radius:999px;font:600 16px var(--sans);transition:transform .2s,background .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn.w{background:#fff;color:#000}
+.btn.d{background:var(--card2);color:#fff}
+.btn.d:hover{background:#26262A}
+.btn.sm{height:38px;padding:0 16px;font-size:14px}
+.btn svg{width:17px;height:17px}
+
+/* ---------- glow text ---------- */
+.glow{position:relative;display:inline-block;isolation:isolate}
+.glow::before{content:attr(data-t);position:absolute;inset:0;color:transparent;background:var(--glow);-webkit-background-clip:text;background-clip:text;filter:blur(18px);opacity:.9;z-index:-1;white-space:pre}
+
+/* ---------- hero ---------- */
+.hero{position:relative;padding:150px 0 0;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;position:relative;z-index:2}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--t2);background:var(--card);border:1px solid var(--line);padding:7px 14px 7px 10px;border-radius:999px}
+.tag i{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint)}
+h1{font-size:clamp(42px,5.4vw,64px);line-height:1.02;letter-spacing:-.045em;font-weight:700;margin:26px 0 24px}
+h1 .dim{color:var(--t3)}
+.lede{font-size:clamp(17px,1.6vw,20px);line-height:1.55;color:var(--t2);max-width:500px}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:36px}
+
+.stage{position:relative;height:640px}
+.field{position:absolute;left:0;right:0;bottom:0;height:320px;z-index:0;pointer-events:none}
+.hero .field{position:relative;display:block;width:100%;height:300px;margin-top:-170px}
+.hero-grid{grid-template-columns:1.1fr .9fr}
+
+/* phone */
+.phone{position:absolute;left:50%;top:0;transform:translateX(-50%);width:320px;height:640px;border-radius:50px;background:#161618;padding:8px;box-shadow:0 60px 120px -40px rgba(123,170,145,.25),0 0 0 1px #2A2A2E inset;animation:float 7s ease-in-out infinite}
+.scr{position:relative;height:100%;border-radius:42px;background:#000;overflow:hidden;padding:52px 18px 0}
+.isl{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:100px;height:29px;border-radius:16px;background:#000;border:1px solid #111}
+.sb{position:absolute;top:14px;left:28px;font-size:13px;font-weight:600}
+.ptop{display:flex;justify-content:space-between;align-items:center}
+.ptop img{width:22px;height:22px}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t2)}
+.live i{width:6px;height:6px;border-radius:50%;background:var(--mint)}
+.pgreet{margin:22px 0 16px}
+.pgreet p{font-size:20px;font-weight:600;color:var(--t3);letter-spacing:-.03em}
+.pgreet h3{font-size:27px;font-weight:700;letter-spacing:-.04em;margin-top:2px}
+
+/* ticket */
+.stack{position:relative;padding-bottom:26px}
+.stack .ly{position:absolute;left:12px;right:12px;top:14px;bottom:12px;border-radius:24px;background:#26262B;border:1px solid #3C3C43}
+.stack .ly.b{left:24px;right:24px;top:28px;bottom:0;background:#19191C;border-color:#2C2C31}
+.ticket{position:relative;background:var(--card);border:1px solid #3a3d3a;border-radius:24px;padding:16px}
+.route{display:flex;align-items:flex-end;justify-content:space-between}
+.route b{display:block;font-size:24px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.route span{display:block;font-size:10px;color:var(--t2);margin-top:5px}
+.route .r{text-align:right}
+.route .mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 8px 14px;font-size:9px;color:var(--t2)}
+.route .ln{width:100%;height:1px;background:repeating-linear-gradient(90deg,var(--t3) 0 4px,transparent 4px 8px);position:relative}
+.route .ln::after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)}
+.perf{position:relative;height:1px;margin:14px -16px;background:repeating-linear-gradient(90deg,#2A2A2E 0 5px,transparent 5px 10px)}
+.perf::before,.perf::after{content:"";position:absolute;top:-9px;width:18px;height:18px;border-radius:50%;background:#000}
+.perf::before{left:-9px}.perf::after{right:-9px}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.kv small{display:block;font-size:9px;color:var(--t2)}
+.kv b{display:block;font-size:12px;font-weight:600;margin-top:2px}
+.kv b.t{color:var(--lav);font-family:var(--mono);font-weight:500}
+.cmd{font-family:var(--mono);font-size:11px;background:#000;border-radius:11px;padding:10px 12px;margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmd span{color:var(--t3)}
+.acts{display:grid;grid-template-columns:1fr 1.45fr;gap:6px;margin-top:12px}
+.acts div{height:42px;border-radius:999px;display:grid;place-items:center;font-size:14px;font-weight:600}
+.acts .dn{background:var(--card2)}
+.acts .al{background:#fff;color:#000}
+.pager{display:flex;align-items:center;justify-content:center;gap:8px;font-size:10px;color:var(--t2);margin-top:12px}
+.pager i{display:inline-block;width:5px;height:5px;border-radius:3px;background:var(--t3);margin-right:3px}
+.pager i.on{width:13px;background:#fff}
+.ptabs{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:2px;padding:4px;border-radius:999px;background:rgba(241,238,232,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:11px;font-weight:500;color:#56524C;z-index:3}
+.ptabs span{padding:7px 12px;border-radius:999px}
+.ptabs .on{background:#1A1817;color:#F1EEE8}
+.scr .field{height:190px}
+
+@keyframes float{50%{translate:0 -10px}}
+
+/* ---------- sections ---------- */
+section{position:relative;padding:120px 0}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mint);margin-bottom:18px}
+h2{font-size:clamp(34px,4.6vw,56px);line-height:1.05;letter-spacing:-.04em;font-weight:700;max-width:760px}
+h2 .dim{color:var(--t3)}
+.sub{font-size:18px;color:var(--t2);line-height:1.55;max-width:560px;margin-top:20px}
+
+/* problem */
+.problem{padding:120px 0 40px}
+.problem h2{max-width:900px;font-size:clamp(30px,4vw,48px)}
+
+/* features */
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:64px}
+.feat{background:var(--card);border-radius:28px;padding:28px;display:flex;flex-direction:column;min-height:420px;overflow:hidden;position:relative}
+.feat h3{font-size:21px;font-weight:600;letter-spacing:-.025em;margin-top:auto}
+.feat p{font-size:15px;color:var(--t2);line-height:1.5;margin-top:8px}
+.vis{flex:1;display:grid;place-items:center;margin:-4px 0 26px;position:relative}
+
+/* lock screen mini */
+.lock{width:100%;text-align:center}
+.lock .t{font-size:62px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.lock .d{font-size:12px;color:var(--t2);margin-bottom:6px}
+.mini-la{margin-top:22px;text-align:left;background:#0B0B0C;border:1px solid #2A2A2E;border-radius:18px;padding:12px}
+.mini-la .r{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600}
+.mini-la .r em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--lav);font-weight:400}
+.mini-la small{display:block;font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:3px}
+.island{margin:0 auto 22px;width:170px;height:32px;border-radius:18px;background:#000;border:1px solid #2A2A2E;display:flex;align-items:center;justify-content:space-between;padding:0 10px 0 8px}
+.island img{width:18px;height:18px}
+.island b{font-size:13px;color:var(--mint)}
+
+/* watch */
+.watch{width:168px;height:204px;border-radius:48px;background:#161618;padding:9px;box-shadow:0 0 0 1px #2A2A2E inset;position:relative}
+.watch::before,.watch::after{content:"";position:absolute;left:34px;right:34px;height:40px;background:#111113;z-index:-1;border-radius:14px}
+.watch::before{top:-30px}.watch::after{bottom:-30px}
+.wscr{height:100%;border-radius:40px;background:#000;padding:22px 16px 14px;display:flex;flex-direction:column}
+.wscr .h{font-size:10px;color:var(--mint);display:flex;justify-content:space-between}
+.wscr .h em{font-style:normal;color:var(--lav);font-family:var(--mono)}
+.wscr b{font-size:17px;letter-spacing:-.03em;margin-top:8px;line-height:1.1}
+.wscr small{font-family:var(--mono);font-size:9px;color:var(--t2);margin-top:4px}
+.wbtn{display:flex;gap:8px;margin-top:auto}
+.wbtn span{flex:1;height:36px;border-radius:999px;display:grid;place-items:center;font-size:16px;font-weight:600}
+.wbtn .n{background:var(--card2)}.wbtn .y{background:#fff;color:#000}
+
+/* ticket feature */
+.feat .ticket{width:100%;padding:18px}
+.feat .ticket .route b{font-size:26px}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:64px;counter-reset:s}
+.step{border-top:1px solid var(--line);padding-top:26px}
+.step .n{font-family:var(--mono);font-size:13px;color:var(--t3)}
+.step h3{font-size:22px;font-weight:600;letter-spacing:-.025em;margin:14px 0 8px}
+.step p{font-size:15px;color:var(--t2);line-height:1.5}
+.code{margin-top:18px;font-family:var(--mono);font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.code span{color:var(--t3)}
+.code button{font:500 12px var(--sans);color:#000;background:#fff;border:0;border-radius:999px;padding:6px 12px;cursor:pointer;flex:none}
+.apple{margin-top:18px;height:46px;border-radius:999px;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:15px}
+.apple svg{width:15px;height:15px}
+.first{margin-top:18px;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14px}
+.first img{width:22px;height:22px}
+.first small{display:block;color:var(--t2);font-size:12px;margin-top:1px}
+
+.center{text-align:center}
+.center h2,.center .sub{margin-left:auto;margin-right:auto}
+
+/* final */
+.final{padding:160px 0 0;overflow:hidden;text-align:center}
+.final h2{font-size:clamp(46px,7vw,92px);max-width:none}
+.final .cta{justify-content:center}
+.final .field{height:300px;position:relative;display:block;width:100%;margin-top:80px}
+
+footer{border-top:1px solid var(--line);padding:32px 0 44px;font-size:13px;color:var(--t3)}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+footer .brand{font-size:15px;color:var(--t1)}
+footer .brand img{width:24px;height:24px}
+footer nav{position:static;background:none;border:0}
+footer .fl{display:flex;gap:24px}
+footer .fl a:hover{color:var(--t1)}
+
+/* reveal */
+@media (prefers-reduced-motion:reduce){.phone{animation:none}html{scroll-behavior:auto}}
+
+/* responsive */
+@media (max-width:980px){
+  .hero-grid{grid-template-columns:1fr}
+  .stage{height:660px;margin-top:20px}
+  .feats,.steps{grid-template-columns:1fr}
+  .feat{min-height:380px}
+  .links a:not(.btn){display:none}
+}
+@media (max-width:560px){
+  .wrap{padding:0 16px}
+  .hero{padding-top:120px}
+  section{padding:100px 0}
+  .cta .btn{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="wrap">
+  <a class="brand" href="#"><img src="nodcue-logo.png" alt="">NodCue</a>
+  <div class="links">
+    <a href="#how">How it works</a>
+    <a class="btn w sm" href="#get">Get the app</a>
+  </div>
+</div></nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="rv">
+      <span class="tag"><i></i>For Claude Code &amp; Codex</span>
+      <h1>Your agents wait<br>for a yes.<br><span class="glow" data-t="Nod from&#10;anywhere.">Nod from<br>anywhere.</span></h1>
+      <p class="lede">Approve Claude Code and Codex from your iPhone or Apple Watch.</p>
+      <div class="cta" id="get">
+        <a class="btn w" href="#"><svg viewBox="0 0 17 20" fill="currentColor"><path d="M14.1 10.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9C3.6 4.8 2 5.8 1.1 7.4c-1.8 3.2-.5 7.9 1.3 10.5.9 1.3 1.9 2.7 3.2 2.6 1.3 0 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.7-1-2.7-4.3zM11.6 3c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3.1-1.5z"/></svg>Download on the App Store</a>
+        <a class="btn d" href="#how">How it works</a>
+      </div>
+    </div>
+
+    <div class="stage rv">
+      <div class="phone"><div class="scr">
+        <div class="isl"></div><div class="sb">9:41</div>
+        <div class="ptop"><img src="nodcue-logo.png" alt=""><span class="live"><i></i>MacBook Pro</span></div>
+        <div class="pgreet"><p>Good evening.</p><h3 class="glow" data-t="3 agents need you">3 agents need you</h3></div>
+        <div class="stack">
+          <div class="ly b"></div><div class="ly"></div>
+          <div class="ticket">
+            <div class="route"><div><b>Claude</b><span>Agent</span></div><div class="mid">Bash<div class="ln"></div></div><div class="r"><b>kimchi</b><span>Project</span></div></div>
+            <div class="perf"></div>
+            <div class="kv"><div><small>Session</small><b>#2</b></div><div><small>Mac</small><b>MBP</b></div><div><small>Expires</small><b class="t" id="cd">4:58</b></div></div>
+            <div class="cmd"><span>$</span> npm run db:migrate</div>
+            <div class="acts"><div class="dn">Deny</div><div class="al">Allow</div></div>
+          </div>
+        </div>
+        <div class="pager"><span><i class="on"></i><i></i><i></i></span>1 of 3 · swipe for next</div>
+        <canvas class="field" data-density="1"></canvas>
+        <div class="ptabs"><span class="on">Console</span><span>Activity</span><span>Settings</span></div>
+      </div></div>
+    </div>
+  </div>
+  <canvas class="field" data-density=".8"></canvas>
+</header>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <div class="wrap rv">
+    <h2>Your agent stops at every command. <span class="dim">You don't have to sit there.</span></h2>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="how">
+  <div class="wrap">
+    <div class="rv">
+      <div class="kicker">Everywhere you are</div>
+      <h2>Off your desk.</h2>
+    </div>
+    <div class="feats">
+      <div class="feat rv">
+        <div class="vis">
+          <div class="lock">
+            <div class="island"><img src="nodcue-logo.png" alt=""><b>3</b></div>
+            <div class="d">Tuesday, September 29</div>
+            <div class="t">9:41</div>
+            <div class="mini-la"><div class="r">Claude → kimchi<em>4:58</em></div><small>npm run db:migrate</small></div>
+          </div>
+        </div>
+        <h3>Lock screen</h3>
+        <p>Answer without unlocking.</p>
+      </div>
+      <div class="feat rv">
+        <div class="vis">
+          <div class="watch"><div class="wscr">
+            <div class="h">NodCue<em>4:58</em></div>
+            <b>Claude →<br>kimchi</b>
+            <small>npm run db:migrate</small>
+            <div class="wbtn"><span class="n">✕</span><span class="y">✓</span></div>
+          </div></div>
+        </div>
+        <h3>Apple Watch</h3>
+        <p>One tap on your wrist.</p>
+      </div>
+      <div class="feat rv">
+        <div class="vis">
+          <div class="ticket">
+            <div class="route"><div><b>Codex</b><span>Agent</span></div><div class="mid">Bash<div class="ln"></div></div><div class="r"><b>jott</b><span>Project</span></div></div>
+            <div class="perf"></div>
+            <div class="kv"><div><small>Session</small><b>#1</b></div><div><small>Mac</small><b>MBP</b></div><div><small>Expires</small><b class="t">3:12</b></div></div>
+            <div class="cmd"><span>$</span> rm -rf ./dist &amp;&amp; pnpm build</div>
+          </div>
+        </div>
+        <h3>Every detail</h3>
+        <p>Agent, project, command, time left.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section>
+  <div class="wrap">
+    <div class="rv">
+      <div class="kicker">Set up in a minute</div>
+      <h2>Three steps.</h2>
+    </div>
+    <div class="steps">
+      <div class="step rv">
+        <div class="n">01</div>
+        <h3>Sign in with Apple</h3>
+        <div class="apple"><svg viewBox="0 0 17 20" fill="currentColor"><path d="M14.1 10.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9C3.6 4.8 2 5.8 1.1 7.4c-1.8 3.2-.5 7.9 1.3 10.5.9 1.3 1.9 2.7 3.2 2.6 1.3 0 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.7-1-2.7-4.3zM11.6 3c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3.1-1.5z"/></svg>Continue with Apple</div>
+      </div>
+      <div class="step rv">
+        <div class="n">02</div>
+        <h3>Paste one command on your Mac</h3>
+        <div class="code"><div><span>$</span> npx nodcue pair</div><button type="button" id="copy">Copy</button></div>
+      </div>
+      <div class="step rv">
+        <div class="n">03</div>
+        <h3>Get your first nod</h3>
+        <div class="first"><img src="nodcue-logo.png" alt=""><div>Claude needs a nod<small>kimchi · npm run db:migrate</small></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- FINAL -->
+<section class="final">
+  <div class="wrap rv">
+    <h2><span class="glow" data-t="Go get coffee.">Go get coffee.</span><br><span class="dim">We'll tap you.</span></h2>
+    <div class="cta" style="margin-top:44px">
+      <a class="btn w" href="#"><svg viewBox="0 0 17 20" fill="currentColor"><path d="M14.1 10.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9C3.6 4.8 2 5.8 1.1 7.4c-1.8 3.2-.5 7.9 1.3 10.5.9 1.3 1.9 2.7 3.2 2.6 1.3 0 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.7-1-2.7-4.3zM11.6 3c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3.1-1.5z"/></svg>Download on the App Store</a>
+    </div>
+  </div>
+  <canvas class="field" data-density="1"></canvas>
+</section>
+
+<footer><div class="wrap">
+  <a class="brand" href="#"><img src="nodcue-logo.png" alt="">NodCue</a>
+  <div class="fl">
+    <a href="https://nodcue.teloslab.mobi/">Privacy</a>
+    <a href="https://nodcue.teloslab.mobi/">Terms</a>
+    <a href="https://nodcue.teloslab.mobi/support/">Support</a>
+  </div>
+  <span>© 2026 ANSWER AI LAB INC</span>
+</div></footer>
+
+<script>
+// nav background on scroll
+const nav = document.getElementById('nav');
+const onScroll = () => nav.classList.toggle('scrolled', scrollY > 20);
+addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+// Interactive dot-matrix fields (sage / lavender / sand / grey), rising from the bottom.
+// Pointer near a field lights up the pixels under it; a click / tap sends a ripple.
+const COLS = ['#9DB39A','#A9A3C7','#C9B79A','#8E8980'], MINT = '#80D6A8';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const pointer = { x: -1e4, y: -1e4, on: false };
+const ripples = [];
+
+class Field {
+  constructor(cv){ this.cv = cv; this.c = cv.getContext('2d'); this.visible = true; this.build(); }
+  build(){
+    const cv = this.cv, d = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+    this.w = w; this.h = h; if (!w || !h) { this.cells = []; return; }
+    cv.width = w*d; cv.height = h*d; this.c.setTransform(d,0,0,d,0,0);
+    const step = this.step = w < 500 ? 7 : 9, dens = +cv.dataset.density || 1;
+    let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+    this.cells = [];
+    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+      const t = y / h, wave = 0.5 + 0.5*Math.sin(x/60)*Math.cos(x/143);
+      const on = rnd() < Math.pow(t,1.7)*(0.5+0.5*wave)*dens;
+      this.cells.push({ x, y, on, a: 0.18 + 0.55*t, col: COLS[Math.floor((x/w + rnd()*0.3)*COLS.length) % COLS.length], ph: rnd()*6.283 });
+    }
+  }
+  draw(now){
+    const { c, w, h, step } = this; if (!w) return;
+    const r = this.cv.getBoundingClientRect();
+    const px = pointer.x - r.left, py = pointer.y - r.top, R = 130;
+    const near = pointer.on && px > -R && px < w + R && py > -R && py < h + R;
+    c.clearRect(0, 0, w, h);
+    for (const cell of this.cells) {
+      let a = cell.on ? cell.a * (reduced ? 1 : 0.8 + 0.2*Math.sin(now/1100 + cell.ph)) : 0, k = 0;
+      if (near) { const dx = cell.x - px, dy = cell.y - py, dd = Math.sqrt(dx*dx + dy*dy); if (dd < R) k = Math.pow(1 - dd/R, 2); }
+      for (const rp of ripples) {
+        if (rp.cv !== this.cv) continue;
+        const age = (now - rp.t) / 1400, rad = age * 520, dd = Math.hypot(cell.x - rp.x, cell.y - rp.y), band = Math.abs(dd - rad);
+        if (band < 36) k = Math.max(k, (1 - band/36) * (1 - age));
+      }
+      if (k > 0) a = Math.max(a, k * (cell.on ? 1 : 0.7));
+      if (a < 0.02) continue;
+      const g = k * 2;
+      c.globalAlpha = a; c.fillStyle = k > 0.45 ? MINT : cell.col;
+      c.fillRect(cell.x - g/2, cell.y - g/2, step - 2 + g, step - 2 + g);
+    }
+  }
+}
+
+const fields = [...document.querySelectorAll('canvas.field')].map(cv => new Field(cv));
+const vis = new IntersectionObserver(es => es.forEach(e => { const f = fields.find(f => f.cv === e.target); if (f) f.visible = e.isIntersecting; }));
+fields.forEach(f => vis.observe(f.cv));
+addEventListener('pointermove', e => { pointer.x = e.clientX; pointer.y = e.clientY; pointer.on = true; }, { passive: true });
+document.addEventListener('pointerleave', () => { pointer.on = false; });
+addEventListener('pointerdown', e => {
+  for (const f of fields) { const r = f.cv.getBoundingClientRect();
+    if (e.clientY > r.top - 60 && e.clientY < r.bottom && e.clientX > r.left && e.clientX < r.right)
+      ripples.push({ cv: f.cv, x: e.clientX - r.left, y: e.clientY - r.top, t: performance.now() }); }
+});
+(function loop(now){
+  for (let i = ripples.length - 1; i >= 0; i--) if (now - ripples[i].t > 1400) ripples.splice(i, 1);
+  fields.forEach(f => f.visible && f.draw(now));
+  requestAnimationFrame(loop);
+})(performance.now());
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => fields.forEach(f => f.build()), 150); });
+
+// live countdown in the hero ticket
+const cd = document.getElementById('cd'); let left = 298;
+setInterval(() => { left = left > 0 ? left-1 : 298; cd.textContent = Math.floor(left/60) + ':' + String(left%60).padStart(2,'0'); }, 1000);
+
+// copy button
+document.getElementById('copy').addEventListener('click', e => {
+  try { navigator.clipboard.writeText('npx nodcue pair').catch(() => {}); } catch (_) {}
+  e.target.textContent = 'Copied'; setTimeout(() => e.target.textContent = 'Copy', 1600);
+});
+</script>
+</body>
+</html>
