@@ -111,6 +111,32 @@ h1 .dim{color:var(--t3)}
 .ptabs .on{background:#1A1817;color:#F1EEE8}
 .scr .field{height:190px;position:absolute;left:0;right:0;bottom:0}
 
+/* phone: two views that cross-fade (lock screen -> app) */
+.scr{padding:0}
+.view{position:absolute;inset:0;padding:52px 18px 0;transition:opacity .55s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+.scr[data-view="lock"] .app{opacity:0;transform:scale(.92);pointer-events:none}
+.scr[data-view="app"] .lock{opacity:0;transform:scale(1.08);pointer-events:none}
+.scr[data-view="lock"] .sb{opacity:0}
+.sb,.isl{z-index:5}
+.lock{display:flex;flex-direction:column;align-items:center;padding-top:62px}
+.ldate{font-size:14px;font-weight:600;color:rgba(255,255,255,.75)}
+.ltime{font-size:84px;font-weight:700;letter-spacing:-.04em;line-height:1;margin-top:2px}
+.notif{all:unset;box-sizing:border-box;cursor:pointer;width:100%;margin-top:auto;margin-bottom:112px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;padding:12px 14px 13px;border-radius:22px;
+  background:rgba(44,44,48,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 0 -5px rgba(44,44,48,.45),0 20px 40px -12px rgba(0,0,0,.6);transition:transform .2s}
+.notif:hover{transform:scale(1.02)}
+.notif:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+.scr[data-view="lock"] .notif{animation:drop .7s cubic-bezier(.2,.9,.25,1.15) .25s both}
+@keyframes drop{from{opacity:0;transform:translateY(-40px) scale(.96)}}
+.nhead{display:flex;align-self:stretch;align-items:center;gap:7px;font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px}
+.nhead img{width:20px;height:20px;border-radius:5px;background:#000}
+.nhead b{font-weight:600;color:rgba(255,255,255,.85);letter-spacing:.02em;text-transform:uppercase;font-size:10px}
+.nhead em{font-style:normal;margin-left:auto}
+.ntitle{font-size:14px;font-weight:600}
+.nbody{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.7)}
+.nmore{font-size:10px;color:rgba(255,255,255,.45);margin-top:5px}
+.lbtns{position:absolute;left:28px;right:28px;bottom:26px;display:flex;justify-content:space-between}
+.lbtns i{width:40px;height:40px;border-radius:50%;background:rgba(40,40,44,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+@media (prefers-reduced-motion:reduce){.view{transition:none}.scr[data-view] .notif{animation:none}}
 @keyframes float{50%{translate:0 -10px}}
 
 /* ---------- sections ---------- */
@@ -234,23 +260,41 @@ footer .fl a:hover{color:var(--t1)}
     </div>
 
     <div class="stage rv">
-      <div class="phone"><div class="scr">
-        <div class="isl"></div><div class="sb">9:41</div>
-        <div class="ptop"><img src="nodcue-logo.png" alt=""><span class="live"><i></i>MacBook Pro</span></div>
-        <div class="pgreet"><p>Good evening.</p><h3 class="glow" data-t="3 agents need you">3 agents need you</h3></div>
-        <div class="stack">
-          <div class="ly b"></div><div class="ly"></div>
-          <div class="ticket">
-            <div class="route"><div><b>Claude</b><span>Agent</span></div><div class="mid">Bash<div class="ln"></div></div><div class="r"><b>kimchi</b><span>Project</span></div></div>
-            <div class="perf"></div>
-            <div class="kv"><div><small>Session</small><b>#2</b></div><div><small>Mac</small><b>MBP</b></div><div><small>Expires</small><b class="t" id="cd">4:58</b></div></div>
-            <div class="cmd"><span>$</span> npm run db:migrate</div>
-            <div class="acts"><div class="dn">Deny</div><div class="al">Allow</div></div>
-          </div>
-        </div>
-        <div class="pager"><span><i class="on"></i><i></i><i></i></span>1 of 3 · swipe for next</div>
+      <div class="phone"><div class="scr" id="scr" data-view="lock">
         <canvas class="field" data-density="1"></canvas>
-        <div class="ptabs"><span class="on">Console</span><span>Activity</span><span>Settings</span></div>
+
+        <!-- View 1: lock screen with an incoming NodCue notification -->
+        <div class="view lock" aria-hidden="false">
+          <div class="ldate">Tuesday, September 29</div>
+          <div class="ltime">9:41</div>
+          <button class="notif" type="button" id="notif" aria-label="Open NodCue">
+            <span class="nhead"><img src="nodcue-logo.png" alt=""><b>NodCue</b><em>now</em></span>
+            <span class="ntitle">Claude needs a nod</span>
+            <span class="nbody">kimchi · npm run db:migrate</span>
+            <span class="nmore">2 more requests</span>
+          </button>
+          <div class="lbtns"><i></i><i></i></div>
+        </div>
+
+        <!-- View 2: the NodCue app, opened from the notification -->
+        <div class="view app" aria-hidden="true">
+          <div class="ptop"><img src="nodcue-logo.png" alt=""><span class="live"><i></i>MacBook Pro</span></div>
+          <div class="pgreet"><p>Good evening.</p><h3 class="glow" data-t="3 agents need you">3 agents need you</h3></div>
+          <div class="stack">
+            <div class="ly b"></div><div class="ly"></div>
+            <div class="ticket">
+              <div class="route"><div><b>Claude</b><span>Agent</span></div><div class="mid">Bash<div class="ln"></div></div><div class="r"><b>kimchi</b><span>Project</span></div></div>
+              <div class="perf"></div>
+              <div class="kv"><div><small>Session</small><b>#2</b></div><div><small>Mac</small><b>MBP</b></div><div><small>Expires</small><b class="t" id="cd">4:58</b></div></div>
+              <div class="cmd"><span>$</span> npm run db:migrate</div>
+              <div class="acts"><div class="dn">Deny</div><div class="al">Allow</div></div>
+            </div>
+          </div>
+          <div class="pager"><span><i class="on"></i><i></i><i></i></span>1 of 3 · swipe for next</div>
+          <div class="ptabs"><span class="on">Console</span><span>Activity</span><span>Settings</span></div>
+        </div>
+
+        <div class="isl"></div><div class="sb">9:41</div>
       </div></div>
     </div>
   </div>
@@ -408,6 +452,19 @@ document.addEventListener('pointerleave', () => { pointer.x = pointer.y = -1e4; 
 buildBg();
 (function loop(now){ drawBg(now); requestAnimationFrame(loop); })(performance.now());
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(buildBg, 150); });
+
+// Hero phone: lock screen with notification <-> app, every 5s; tapping the notification opens the app
+const scr = document.getElementById('scr');
+let phoneTimer;
+function showView(v){
+  scr.dataset.view = v;
+  scr.querySelector('.lock').setAttribute('aria-hidden', v !== 'lock');
+  scr.querySelector('.app').setAttribute('aria-hidden', v !== 'app');
+  clearTimeout(phoneTimer);
+  phoneTimer = setTimeout(() => showView(v === 'lock' ? 'app' : 'lock'), 5000);
+}
+document.getElementById('notif').addEventListener('click', () => showView('app'));
+showView('lock');
 
 // live countdown in the hero ticket
 const cd = document.getElementById('cd'); let left = 298;
