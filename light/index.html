@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NodCue</title>
+<meta name="description" content="Approve Claude Code and Codex from your iPhone or Apple Watch.">
+<link rel="icon" href="../nodcue-logo.png">
+<style>
+/* Apple-native, light. Centered product-page layout: headline, device, three tiles, three steps, download. */
+:root{
+  color-scheme:light;
+  --bg:#FFFFFF; --bg2:#F5F5F7; --group:#F2F2F7; --card:#FFFFFF;
+  --t1:#1D1D1F; --t2:#6E6E73; --t3:#A1A1A6; --sep:rgba(60,60,67,.14);
+  --blue:#007AFF; --green:#34C759; --red:#FF3B30; --orange:#FF9500;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --max:1024px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t1);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+
+/* app icon: the light logo on a black squircle */
+.icon{display:grid;place-items:center;background:#000;border-radius:23%;flex:none}
+.icon img{width:74%;height:74%}
+
+/* nav */
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid transparent;transition:border-color .3s}
+nav.scrolled{border-color:var(--sep)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:52px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:17px;letter-spacing:-.02em}
+.brand .icon{width:28px;height:28px}
+.links{display:flex;align-items:center;gap:26px;font-size:13px;color:var(--t2)}
+.links a:hover{color:var(--t1)}
+.get{background:var(--blue);color:#fff !important;font-weight:500;padding:6px 14px;border-radius:999px}
+
+/* buttons */
+.cta{display:flex;gap:22px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:30px}
+.store{display:inline-flex;align-items:center;gap:10px;background:#000;color:#fff;height:54px;padding:0 22px 0 18px;border-radius:14px;transition:transform .2s}
+.store:hover{transform:scale(1.02)}
+.store svg{width:24px;height:28px}
+.store small{display:block;font-size:11px;line-height:1.1;font-weight:400}
+.store b{display:block;font-size:19px;line-height:1.1;font-weight:600;letter-spacing:-.02em}
+.more{color:var(--blue);font-size:19px}
+.more:hover{text-decoration:underline}
+
+/* hero */
+.hero{text-align:center;padding:76px 0 0;background:linear-gradient(#fff,var(--bg2))}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:500;color:var(--t2)}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--green)}
+h1{font-weight:700;letter-spacing:-.035em;margin-top:18px}
+h1 .h-lead{display:block;font-size:clamp(28px,4.2vw,44px);line-height:1.1;color:var(--t2);font-weight:600}
+h1 .h-big{display:block;font-size:clamp(46px,8vw,88px);line-height:1.02;letter-spacing:-.045em;margin-top:8px}
+.lede{font-size:clamp(19px,2vw,24px);line-height:1.35;color:var(--t2);max-width:560px;margin:18px auto 0;letter-spacing:-.01em}
+
+/* phone */
+.stage{margin-top:64px;display:flex;justify-content:center}
+.phone{width:320px;height:660px;border-radius:54px;background:#1D1D1F;padding:9px;box-shadow:0 0 0 1.5px #3A3A3C inset,0 50px 90px -30px rgba(0,0,0,.35);position:relative}
+.scr{position:relative;height:100%;border-radius:45px;overflow:hidden;background:var(--group);text-align:left}
+.isl{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:98px;height:29px;border-radius:16px;background:#000;z-index:5}
+.sb{position:absolute;top:15px;left:30px;font-size:14px;font-weight:600;z-index:5;transition:opacity .4s}
+.view{position:absolute;inset:0;transition:opacity .55s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+.scr[data-view="lock"] .app{opacity:0;transform:scale(.92);pointer-events:none}
+.scr[data-view="app"] .lock{opacity:0;transform:scale(1.08);pointer-events:none}
+.scr[data-view="lock"] .sb{opacity:0}
+
+/* lock screen */
+.lock{background:linear-gradient(165deg,#8FC0F5 0%,#B9B2EE 48%,#F3C4B6 100%);display:flex;flex-direction:column;align-items:center;padding:74px 12px 0;color:#fff}
+.ldate{font-size:15px;font-weight:600;opacity:.92}
+.ltime{font-size:86px;font-weight:700;letter-spacing:-.04em;line-height:1;margin-top:2px}
+.notif{all:unset;box-sizing:border-box;cursor:pointer;width:100%;margin-top:auto;margin-bottom:104px;display:flex;gap:10px;align-items:center;text-align:left;padding:12px 14px;border-radius:22px;color:var(--t1);
+  background:rgba(255,255,255,.72);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);box-shadow:0 9px 0 -5px rgba(255,255,255,.45),0 18px 34px -16px rgba(0,0,0,.35);transition:transform .2s}
+.notif:hover{transform:scale(1.02)}
+.notif:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.scr[data-view="lock"] .notif{animation:drop .7s cubic-bezier(.2,.9,.25,1.15) .25s both}
+@keyframes drop{from{opacity:0;transform:translateY(-40px) scale(.96)}}
+.notif .icon{width:38px;height:38px}
+.nt{flex:1;min-width:0}
+.nt b{display:flex;justify-content:space-between;font-size:14px;font-weight:600}
+.nt b em{font-style:normal;font-weight:400;font-size:12px;color:var(--t2)}
+.nt span{display:block;font-size:13px;line-height:1.3;color:#3A3A3C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbtns{position:absolute;left:30px;right:30px;bottom:30px;display:flex;justify-content:space-between}
+.lbtns i{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.homebar{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);width:112px;height:4px;border-radius:2px;background:rgba(0,0,0,.85);z-index:6}
+.scr[data-view="lock"] .homebar{background:rgba(255,255,255,.9)}
+
+/* app */
+.app{padding:56px 14px 0}
+.status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);padding:0 6px}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.large{font-size:30px;font-weight:700;letter-spacing:-.03em;padding:4px 6px 14px}
+.stack{position:relative;padding-bottom:20px}
+.stack .ly{position:absolute;left:12px;right:12px;top:14px;bottom:10px;border-radius:22px;background:rgba(255,255,255,.75);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stack .ly.b{left:24px;right:24px;top:28px;bottom:0;background:rgba(255,255,255,.5)}
+.req{position:relative;background:var(--card);border-radius:22px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px -12px rgba(0,0,0,.18)}
+.who{display:flex;align-items:center;gap:10px}
+.who .av,.av{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:#F6E3D3;color:#C2562B;display:grid;place-items:center;flex:none}
+.av svg{width:18px;height:18px}
+.who b{display:block;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.who div span{display:block;font-size:12px;color:var(--t2)}
+.who .timer,.timer{display:block;margin-left:auto;font-size:12px;font-weight:600;color:var(--orange);background:rgba(255,149,0,.12);padding:4px 9px;border-radius:999px;font-variant-numeric:tabular-nums}
+.cmd{font-family:var(--mono);font-size:11.5px;background:var(--group);border-radius:12px;padding:11px 12px;margin:12px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmd span{color:var(--t3)}
+.rows{font-size:13px}
+.rows div{display:flex;justify-content:space-between;padding:8px 2px;border-top:.5px solid var(--sep)}
+.rows span{color:var(--t2)}
+.acts{display:grid;grid-template-columns:1fr 1.5fr;gap:8px;margin-top:10px}
+.acts div{height:44px;border-radius:13px;display:grid;place-items:center;font-size:15px;font-weight:600}
+.acts .dn{background:#EFEFF1;color:var(--red)}
+.acts .al{background:var(--blue);color:#fff}
+.pager{display:flex;justify-content:center;gap:6px;margin-top:12px}
+.pager i{width:6px;height:6px;border-radius:50%;background:#C7C7CC}
+.pager i.on{background:var(--t1)}
+.glabel{font-size:12px;color:var(--t2);text-transform:uppercase;letter-spacing:.02em;padding:16px 16px 6px}
+.glist{background:#fff;border-radius:14px;font-size:14px}
+.glist div{display:flex;align-items:center;gap:8px;padding:12px 14px}
+.glist em{font-style:normal;color:var(--t2);margin-left:auto}
+.gdot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:74px;padding-top:8px;display:flex;justify-content:space-around;align-items:flex-start;background:rgba(249,249,249,.86);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--sep)}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:500;color:#999}
+.tabbar svg{width:23px;height:23px}
+.tabbar .on{color:var(--blue)}
+
+/* sections */
+section{padding:110px 0}
+.grey{background:var(--bg2)}
+h2{font-size:clamp(36px,5.4vw,56px);line-height:1.06;letter-spacing:-.035em;font-weight:700;text-align:center}
+.sub{font-size:clamp(19px,2vw,22px);color:var(--t2);text-align:center;margin-top:12px;letter-spacing:-.01em}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:56px}
+.tile{background:var(--card);border-radius:28px;padding:30px 26px 28px;display:flex;flex-direction:column;min-height:440px;overflow:hidden}
+.tile h3{font-size:24px;font-weight:600;letter-spacing:-.025em;margin-top:auto}
+.tile p{font-size:17px;color:var(--t2);margin-top:4px;line-height:1.35}
+.vis{flex:1;display:grid;place-items:center;margin-bottom:26px}
+
+.mini-lock{width:100%;border-radius:22px;padding:22px 14px 16px;text-align:center;color:#fff;background:linear-gradient(165deg,#8FC0F5,#B9B2EE 52%,#F3C4B6)}
+.mini-lock .t{font-size:56px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.mini-lock .d{font-size:12px;font-weight:600;opacity:.92}
+.mini-lock .notif{margin:18px 0 0;animation:none;cursor:default;padding:10px 12px;border-radius:18px}
+.mini-lock .notif:hover{transform:none}
+.mini-lock .notif .icon{width:32px;height:32px}
+
+.watch{width:164px;height:200px;border-radius:46px;background:#1D1D1F;padding:9px;position:relative;box-shadow:0 0 0 1.5px #3A3A3C inset,0 24px 40px -18px rgba(0,0,0,.35)}
+.watch::before,.watch::after{content:"";position:absolute;left:30px;right:30px;height:44px;background:#E3E3E8;z-index:-1;border-radius:16px}
+.watch::before{top:-34px}.watch::after{bottom:-34px}
+.watch{isolation:isolate}
+.wscr{height:100%;border-radius:38px;background:#000;color:#fff;padding:20px 14px 13px;display:flex;flex-direction:column}
+.wscr .h{font-size:10px;font-weight:600;color:var(--blue);display:flex;justify-content:space-between}
+.wscr .h em{font-style:normal;color:var(--orange)}
+.wscr b{font-size:17px;letter-spacing:-.03em;margin-top:8px;line-height:1.1}
+.wscr small{font-family:var(--mono);font-size:9px;color:#98989D;margin-top:4px}
+.wbtn{display:flex;gap:7px;margin-top:auto}
+.wbtn span{flex:1;height:36px;border-radius:999px;display:grid;place-items:center;font-size:13px;font-weight:600}
+.wbtn .n{background:#2C2C2E;color:#FF453A}.wbtn .y{background:#0A84FF;color:#fff}
+
+.detail{width:100%;background:var(--group);border-radius:22px;padding:8px}
+.detail .req{box-shadow:none}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:56px}
+.step{background:var(--bg2);border-radius:28px;padding:28px 26px}
+.step .n{width:34px;height:34px;border-radius:50%;background:var(--t1);color:#fff;display:grid;place-items:center;font-size:16px;font-weight:600}
+.step h3{font-size:22px;font-weight:600;letter-spacing:-.025em;margin:18px 0 16px;line-height:1.2}
+.apple{height:46px;border-radius:12px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;font-weight:600;font-size:16px}
+.apple svg{width:15px;height:18px}
+.code{font-family:var(--mono);font-size:13px;background:#fff;border-radius:12px;padding:10px 10px 10px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;height:46px}
+.code span{color:var(--t3)}
+.code button{font:600 13px var(--sans);color:var(--blue);background:rgba(0,122,255,.1);border:0;border-radius:999px;padding:6px 12px;cursor:pointer;flex:none}
+.first{display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:0 12px;height:46px;font-size:14px;font-weight:600}
+.first .icon{width:28px;height:28px}
+.first small{display:block;color:var(--t2);font-size:11px;font-weight:400}
+
+/* final */
+.final{text-align:center;padding:130px 0 120px}
+.final .icon{width:96px;height:96px;margin:0 auto 30px;box-shadow:0 20px 40px -16px rgba(0,0,0,.35)}
+.final h2{font-size:clamp(44px,7vw,80px);letter-spacing:-.045em}
+.final h2 span{color:var(--t3)}
+
+footer{background:var(--bg2);padding:22px 0 30px;font-size:12px;color:var(--t2)}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-top:1px solid var(--sep);padding-top:18px}
+footer .fl{display:flex;gap:22px}
+footer a:hover{color:var(--t1)}
+
+@media (prefers-reduced-motion:reduce){.view{transition:none}.scr[data-view] .notif{animation:none}html{scroll-behavior:auto}}
+@media (max-width:860px){
+  .tiles,.steps{grid-template-columns:1fr}
+  .tile{min-height:400px}
+  .links a:not(.get){display:none}
+  section{padding:80px 0}
+}
+@media (max-width:420px){.wrap{padding:0 16px}.phone{width:300px;height:620px}.ltime{font-size:78px}}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="wrap">
+  <a class="brand" href="#"><span class="icon"><img src="../nodcue-logo.png" alt=""></span>NodCue</a>
+  <div class="links">
+    <a href="#how">How it works</a>
+    <a class="get" href="#get">Get</a>
+  </div>
+</div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><i></i>For Claude Code &amp; Codex</span>
+    <h1><span class="h-lead">Your agents wait for a yes.</span><span class="h-big">Nod from anywhere.</span></h1>
+    <p class="lede">Approve Claude Code and Codex from your iPhone or Apple Watch.</p>
+    <div class="cta" id="get">
+      <a class="store" href="#"><svg viewBox="0 0 17 20" fill="currentColor"><path d="M14.1 10.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9C3.6 4.8 2 5.8 1.1 7.4c-1.8 3.2-.5 7.9 1.3 10.5.9 1.3 1.9 2.7 3.2 2.6 1.3 0 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.7-1-2.7-4.3zM11.6 3c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3.1-1.5z"/></svg><span><small>Download on the</small><b>App Store</b></span></a>
+      <a class="more" href="#how">How it works ›</a>
+    </div>
+
+    <div class="stage">
+      <div class="phone"><div class="scr" id="scr" data-view="lock">
+        <!-- View 1: lock screen with an incoming notification -->
+        <div class="view lock" aria-hidden="false">
+          <div class="ldate">Tuesday, September 29</div>
+          <div class="ltime">9:41</div>
+          <button class="notif" type="button" id="notif" aria-label="Open NodCue">
+            <span class="icon"><img src="../nodcue-logo.png" alt=""></span>
+            <span class="nt"><b>Claude needs a nod<em>now</em></b><span>kimchi · npm run db:migrate</span></span>
+          </button>
+          <div class="lbtns"><i></i><i></i></div>
+        </div>
+        <!-- View 2: the app -->
+        <div class="view app" aria-hidden="true">
+          <div class="status"><i></i>MacBook Pro · Connected</div>
+          <div class="large">3 waiting</div>
+          <div class="stack">
+            <div class="ly b"></div><div class="ly"></div>
+            <div class="req">
+              <div class="who"><span class="av"><svg viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 1.5v13M1.5 8h13M3.4 3.4l9.2 9.2M12.6 3.4l-9.2 9.2"/></svg></span><div><b>Claude Code</b><span>kimchi-api</span></div><span class="timer" id="cd">4:58</span></div>
+              <div class="cmd"><span>$</span> npm run db:migrate</div>
+              <div class="rows"><div><span>Tool</span>Bash</div><div><span>Mac</span>MacBook Pro</div></div>
+              <div class="acts"><div class="dn">Deny</div><div class="al">Allow</div></div>
+            </div>
+          </div>
+          <div class="pager"><i class="on"></i><i></i><i></i></div>
+          <div class="glabel">Running</div>
+          <div class="glist"><div><span class="gdot"></span>Claude Code<em>landing</em></div></div>
+          <div class="tabbar">
+            <div class="on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v9a2.5 2.5 0 0 1-2.5 2.5H13l-4.2 3.4c-.5.4-1.3 0-1.3-.6V17h-1A2.5 2.5 0 0 1 4 14.500z"/></svg>Requests</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>Activity</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path stroke-linecap="round" d="M12 2.8v2.4M12 18.800v2.4M2.800 12h2.4M18.800 12h2.4M5.500 5.500l1.700 1.700M16.800 16.800l1.700 1.700M5.500 18.500l1.700-1.700M16.800 7.200l1.700-1.700"/></svg>Settings</div>
+          </div>
+        </div>
+        <div class="isl"></div><div class="sb">9:41</div><div class="homebar"></div>
+      </div></div>
+    </div>
+  </div>
+  <div style="height:90px"></div>
+</header>
+
+<section class="grey" id="how">
+  <div class="wrap">
+    <h2>Off your desk.</h2>
+    <p class="sub">Everywhere you already are.</p>
+    <div class="tiles">
+      <div class="tile">
+        <div class="vis"><div class="mini-lock">
+          <div class="d">Tuesday, September 29</div><div class="t">9:41</div>
+          <div class="notif"><span class="icon"><img src="../nodcue-logo.png" alt=""></span><span class="nt"><b>Claude needs a nod<em>now</em></b><span>npm run db:migrate</span></span></div>
+        </div></div>
+        <h3>Lock screen</h3><p>Answer without unlocking.</p>
+      </div>
+      <div class="tile">
+        <div class="vis"><div class="watch"><div class="wscr">
+          <div class="h">NodCue<em>4:58</em></div><b>Claude Code<br>kimchi-api</b><small>npm run db:migrate</small>
+          <div class="wbtn"><span class="n">Deny</span><span class="y">Allow</span></div>
+        </div></div></div>
+        <h3>Apple Watch</h3><p>One tap on your wrist.</p>
+      </div>
+      <div class="tile">
+        <div class="vis"><div class="detail"><div class="req">
+          <div class="who"><span class="av" style="background:#E1E4FA;color:#4450B8;font:600 13px var(--mono)">›_</span><div><b>Codex</b><span>jott-notes</span></div><span class="timer">3:12</span></div>
+          <div class="cmd"><span>$</span> rm -rf ./dist &amp;&amp; pnpm build</div>
+          <div class="rows"><div><span>Tool</span>Bash</div><div><span>Mac</span>MacBook Pro</div></div>
+        </div></div></div>
+        <h3>Every detail</h3><p>Agent, project, command, time left.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Three steps.</h2>
+    <p class="sub">Set up in about a minute.</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Sign in with Apple</h3>
+        <div class="apple"><svg viewBox="0 0 17 20" fill="currentColor"><path d="M14.1 10.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9C3.6 4.8 2 5.8 1.1 7.4c-1.8 3.2-.5 7.9 1.3 10.5.9 1.3 1.9 2.7 3.2 2.6 1.3 0 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.7-1-2.7-4.3zM11.6 3c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3.1-1.5z"/></svg>Continue with Apple</div></div>
+      <div class="step"><div class="n">2</div><h3>Paste one command on your Mac</h3>
+        <div class="code"><div><span>$</span> npx nodcue pair</div><button type="button" id="copy">Copy</button></div></div>
+      <div class="step"><div class="n">3</div><h3>Get your first nod</h3>
+        <div class="first"><span class="icon"><img src="../nodcue-logo.png" alt=""></span><div>Claude needs a nod<small>kimchi · npm run db:migrate</small></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="grey final">
+  <div class="wrap">
+    <div class="icon"><img src="../nodcue-logo.png" alt=""></div>
+    <h2>Go get coffee.<br><span>We'll tap you.</span></h2>
+    <div class="cta" style="margin-top:36px">
+      <a class="store" href="#"><svg viewBox="0 0 17 20" fill="currentColor"><path d="M14.1 10.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9C3.6 4.8 2 5.8 1.1 7.4c-1.8 3.2-.5 7.9 1.3 10.5.9 1.3 1.9 2.7 3.2 2.6 1.3 0 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.7-1-2.7-4.3zM11.6 3c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3.1-1.5z"/></svg><span><small>Download on the</small><b>App Store</b></span></a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <span>© 2026 ANSWER AI LAB INC</span>
+  <div class="fl">
+    <a href="https://nodcue.teloslab.mobi/">Privacy</a>
+    <a href="https://nodcue.teloslab.mobi/">Terms</a>
+    <a href="https://nodcue.teloslab.mobi/support/">Support</a>
+  </div>
+</div></footer>
+
+<script>
+const nav = document.getElementById('nav');
+const onScroll = () => nav.classList.toggle('scrolled', scrollY > 8);
+addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+// Hero phone: lock screen with notification <-> app, every 5s; tapping the notification opens the app
+const scr = document.getElementById('scr');
+let phoneTimer;
+function showView(v){
+  scr.dataset.view = v;
+  scr.querySelector('.lock').setAttribute('aria-hidden', v !== 'lock');
+  scr.querySelector('.app').setAttribute('aria-hidden', v !== 'app');
+  clearTimeout(phoneTimer);
+  phoneTimer = setTimeout(() => showView(v === 'lock' ? 'app' : 'lock'), 5000);
+}
+document.getElementById('notif').addEventListener('click', () => showView('app'));
+showView('lock');
+
+// live countdown
+const cd = document.getElementById('cd'); let left = 298;
+setInterval(() => { left = left > 0 ? left-1 : 298; cd.textContent = Math.floor(left/60) + ':' + String(left%60).padStart(2,'0'); }, 1000);
+
+// copy button
+document.getElementById('copy').addEventListener('click', e => {
+  try { navigator.clipboard.writeText('npx nodcue pair').catch(() => {}); } catch (_) {}
+  e.target.textContent = 'Copied'; setTimeout(() => e.target.textContent = 'Copy', 1600);
+});
+</script>
+</body>
+</html>
