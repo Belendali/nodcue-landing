@@ -149,10 +149,10 @@ h2{font-size:clamp(36px,5.4vw,56px);line-height:1.06;letter-spacing:-.035em;font
 .mini-lock .notif:hover{transform:none}
 .mini-lock .notif .icon{width:32px;height:32px}
 
-.watch{width:164px;height:200px;border-radius:46px;background:#1D1D1F;padding:9px;position:relative;box-shadow:0 0 0 1.5px #3A3A3C inset,0 24px 40px -18px rgba(0,0,0,.35)}
+.watch{width:164px;height:200px;position:relative;isolation:isolate}
+.wcase{height:100%;border-radius:46px;background:#1D1D1F;padding:9px;box-shadow:0 0 0 1.5px #3A3A3C inset,0 24px 40px -18px rgba(0,0,0,.35)}
 .watch::before,.watch::after{content:"";position:absolute;left:30px;right:30px;height:44px;background:#E3E3E8;z-index:-1;border-radius:16px}
 .watch::before{top:-34px}.watch::after{bottom:-34px}
-.watch{isolation:isolate}
 .wscr{height:100%;border-radius:38px;background:#000;color:#fff;padding:20px 14px 13px;display:flex;flex-direction:column}
 .wscr .h{font-size:10px;font-weight:600;color:var(--blue);display:flex;justify-content:space-between}
 .wscr .h em{font-style:normal;color:var(--orange)}
@@ -275,10 +275,10 @@ footer a:hover{color:var(--t1)}
         <h3>Lock screen</h3><p>Answer without unlocking.</p>
       </div>
       <div class="tile">
-        <div class="vis"><div class="watch"><div class="wscr">
+        <div class="vis"><div class="watch"><div class="wcase"><div class="wscr">
           <div class="h">NodCue<em>4:58</em></div><b>Claude Code<br>kimchi-api</b><small>Apply the new database migration</small>
           <div class="wbtn"><span class="n">Deny</span><span class="y">Allow</span></div>
-        </div></div></div>
+        </div></div></div></div>
         <h3>Apple Watch</h3><p>One tap on your wrist.</p>
       </div>
       <div class="tile">
