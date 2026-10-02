@@ -103,7 +103,11 @@ h1 .h-big{display:block;font-size:clamp(46px,8vw,88px);line-height:1.02;letter-s
 .who b{display:block;font-size:15px;font-weight:600;letter-spacing:-.01em}
 .who div span{display:block;font-size:12px;color:var(--t2)}
 .who .timer,.timer{display:block;margin-left:auto;font-size:12px;font-weight:600;color:var(--orange);background:rgba(255,149,0,.12);padding:4px 9px;border-radius:999px;font-variant-numeric:tabular-nums}
-.cmd{font-family:var(--mono);font-size:11.5px;background:var(--group);border-radius:12px;padding:11px 12px;margin:12px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk{margin-top:10px}
+.tk small{display:block;font-size:10px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--t2)}
+.tk b{display:block;font-size:15px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
+.tk span{display:block;font-size:13.5px;line-height:1.3}
+.cmd{font-family:var(--mono);font-size:11px;line-height:1.5;background:var(--group);border-radius:12px;padding:10px 12px;margin:10px 0 2px;overflow-wrap:anywhere}
 .cmd span{color:var(--t3)}
 .rows{font-size:13px}
 .rows div{display:flex;justify-content:space-between;padding:8px 2px;border-top:.5px solid var(--sep)}
@@ -118,7 +122,7 @@ h1 .h-big{display:block;font-size:clamp(46px,8vw,88px);line-height:1.02;letter-s
 .glabel{font-size:12px;color:var(--t2);text-transform:uppercase;letter-spacing:.02em;padding:16px 16px 6px}
 .glist{background:#fff;border-radius:14px;font-size:14px}
 .glist div{display:flex;align-items:center;gap:8px;padding:12px 14px}
-.glist em{font-style:normal;color:var(--t2);margin-left:auto}
+.glist small{display:block;font-size:11.5px;color:var(--t2)}
 .gdot{width:8px;height:8px;border-radius:50%;background:var(--green)}
 .tabbar{position:absolute;left:0;right:0;bottom:0;height:74px;padding-top:8px;display:flex;justify-content:space-around;align-items:flex-start;background:rgba(249,249,249,.86);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--sep)}
 .tabbar div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:500;color:#999}
@@ -224,7 +228,7 @@ footer a:hover{color:var(--t1)}
           <div class="ltime">9:41</div>
           <button class="notif" type="button" id="notif" aria-label="Open NodCue">
             <span class="icon"><img src="../nodcue-logo.png" alt=""></span>
-            <span class="nt"><b>Claude needs a nod<em>now</em></b><span>kimchi · npm run db:migrate</span></span>
+            <span class="nt"><b>Claude Code needs a nod<em>now</em></b><span>Add last-login tracking to users</span></span>
           </button>
           <div class="lbtns"><i></i><i></i></div>
         </div>
@@ -235,15 +239,16 @@ footer a:hover{color:var(--t1)}
           <div class="stack">
             <div class="ly b"></div><div class="ly"></div>
             <div class="req">
-              <div class="who"><span class="av"><svg viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 1.5v13M1.5 8h13M3.4 3.4l9.2 9.2M12.6 3.4l-9.2 9.2"/></svg></span><div><b>Claude Code</b><span>kimchi-api</span></div><span class="timer" id="cd">4:58</span></div>
-              <div class="cmd"><span>$</span> npm run db:migrate</div>
-              <div class="rows"><div><span>Tool</span>Bash</div><div><span>Mac</span>MacBook Pro</div></div>
+              <div class="who"><span class="av"><svg viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 1.5v13M1.5 8h13M3.4 3.4l9.2 9.2M12.6 3.4l-9.2 9.2"/></svg></span><div><b>Claude Code</b><span>kimchi-api · Bash</span></div><span class="timer" id="cd">4:58</span></div>
+              <div class="tk"><small>Task</small><b>Add last-login tracking to users</b></div>
+              <div class="tk"><small>Wants to run</small><span>Apply the new database migration</span></div>
+              <div class="cmd"><span>$</span> npx prisma migrate dev --name add_last_login</div>
               <div class="acts"><div class="dn">Deny</div><div class="al">Allow</div></div>
             </div>
           </div>
           <div class="pager"><i class="on"></i><i></i><i></i></div>
           <div class="glabel">Running</div>
-          <div class="glist"><div><span class="gdot"></span>Claude Code<em>landing</em></div></div>
+          <div class="glist"><div><span class="gdot"></span><span>Claude Code<small>landing · Building the pricing section</small></span></div></div>
           <div class="tabbar">
             <div class="on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v9a2.5 2.5 0 0 1-2.5 2.5H13l-4.2 3.4c-.5.4-1.3 0-1.3-.6V17h-1A2.5 2.5 0 0 1 4 14.500z"/></svg>Requests</div>
             <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>Activity</div>
@@ -265,24 +270,25 @@ footer a:hover{color:var(--t1)}
       <div class="tile">
         <div class="vis"><div class="mini-lock">
           <div class="d">Tuesday, September 29</div><div class="t">9:41</div>
-          <div class="notif"><span class="icon"><img src="../nodcue-logo.png" alt=""></span><span class="nt"><b>Claude needs a nod<em>now</em></b><span>npm run db:migrate</span></span></div>
+          <div class="notif"><span class="icon"><img src="../nodcue-logo.png" alt=""></span><span class="nt"><b>Claude Code needs a nod<em>now</em></b><span>Add last-login tracking to users</span></span></div>
         </div></div>
         <h3>Lock screen</h3><p>Answer without unlocking.</p>
       </div>
       <div class="tile">
         <div class="vis"><div class="watch"><div class="wscr">
-          <div class="h">NodCue<em>4:58</em></div><b>Claude Code<br>kimchi-api</b><small>npm run db:migrate</small>
+          <div class="h">NodCue<em>4:58</em></div><b>Claude Code<br>kimchi-api</b><small>Apply the new database migration</small>
           <div class="wbtn"><span class="n">Deny</span><span class="y">Allow</span></div>
         </div></div></div>
         <h3>Apple Watch</h3><p>One tap on your wrist.</p>
       </div>
       <div class="tile">
         <div class="vis"><div class="detail"><div class="req">
-          <div class="who"><span class="av" style="background:#E1E4FA;color:#4450B8;font:600 13px var(--mono)">›_</span><div><b>Codex</b><span>jott-notes</span></div><span class="timer">3:12</span></div>
+          <div class="who"><span class="av" style="background:#E1E4FA;color:#4450B8;font:600 13px var(--mono)">›_</span><div><b>Codex</b><span>jott-notes · Bash</span></div><span class="timer">3:12</span></div>
+          <div class="tk"><small>Task</small><b>Upgrade to Vite 6</b></div>
+          <div class="tk"><small>Wants to run</small><span>Clean the old build and rebuild</span></div>
           <div class="cmd"><span>$</span> rm -rf ./dist &amp;&amp; pnpm build</div>
-          <div class="rows"><div><span>Tool</span>Bash</div><div><span>Mac</span>MacBook Pro</div></div>
         </div></div></div>
-        <h3>Every detail</h3><p>Agent, project, command, time left.</p>
+        <h3>Every detail</h3><p>The task, the reason, the exact command.</p>
       </div>
     </div>
   </div>
@@ -298,7 +304,7 @@ footer a:hover{color:var(--t1)}
       <div class="step"><div class="n">2</div><h3>Paste one command on your Mac</h3>
         <div class="code"><div><span>$</span> npx nodcue pair</div><button type="button" id="copy">Copy</button></div></div>
       <div class="step"><div class="n">3</div><h3>Get your first nod</h3>
-        <div class="first"><span class="icon"><img src="../nodcue-logo.png" alt=""></span><div>Claude needs a nod<small>kimchi · npm run db:migrate</small></div></div></div>
+        <div class="first"><span class="icon"><img src="../nodcue-logo.png" alt=""></span><div>Claude Code needs a nod<small>Add last-login tracking to users</small></div></div></div>
     </div>
   </div>
 </section>
